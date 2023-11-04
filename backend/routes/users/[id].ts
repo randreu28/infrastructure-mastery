@@ -2,11 +2,9 @@ export default defineEventHandler(async (event) => {
   const id = Number(event.context.params.id);
 
   if (isNaN(id)) {
-    return new Response(
-      JSON.stringify({ message: "parameter is not a number" }),
-      { status: 400 }
-    );
+    return res(400, "Parameter is not a number");
   }
+
   const user = await db
     .selectFrom("users")
     .where("id", "=", id)
@@ -14,10 +12,8 @@ export default defineEventHandler(async (event) => {
     .executeTakeFirst();
 
   if (user === undefined) {
-    return new Response(
-      JSON.stringify({ message: `User not found with id ${id}` }),
-      { status: 404 }
-    );
+    return res(404, `User not found with id ${id}`);
   }
+
   return user;
 });

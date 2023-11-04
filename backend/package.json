@@ -5,7 +5,7 @@
     "dev": "nitropack dev",
     "build": "nitropack build",
     "preview": "node .output/server/index.mjs",
-    "update-db-schema": "npx kysely-codegen --camel-case --env-file=.env.local --out-file=./kysely/tables.g.ts --dialect=postgres"
+    "update-db-schema": "npx kysely-codegen --camel-case --env-file=.env --out-file=./utils/kysely/tables.g.ts --dialect=postgres"
   },
   "dependencies": {
     "consola": "^3.2.3",

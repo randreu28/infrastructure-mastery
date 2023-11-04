@@ -4,9 +4,15 @@
     "prepare": "nitropack prepare",
     "dev": "nitropack dev",
     "build": "nitropack build",
-    "preview": "node .output/server/index.mjs"
+    "preview": "node .output/server/index.mjs",
+    "update-db-schema": "npx kysely-codegen --camel-case --env-file=.env.local --out-file=./kysely/tables.g.ts --dialect=postgres"
   },
   "dependencies": {
-    "nitropack": "latest"
+    "kysely": "^0.26.3",
+    "nitropack": "latest",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "kysely-codegen": "^0.11.0"
   }
 }

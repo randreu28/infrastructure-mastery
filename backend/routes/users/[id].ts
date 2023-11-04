@@ -1,8 +1,11 @@
-export default defineEventHandler(async (event) => {
+export default eventHandler(async (event) => {
   const id = Number(event.context.params.id);
 
   if (isNaN(id)) {
-    return res(400, "Parameter is not a number");
+    return sendErr(event, {
+      statusCode: 400,
+      statusMessage: "Parameter is not a number",
+    });
   }
 
   const user = await db
@@ -12,7 +15,10 @@ export default defineEventHandler(async (event) => {
     .executeTakeFirst();
 
   if (user === undefined) {
-    return res(404, `User not found with id ${id}`);
+    return sendErr(event, {
+      statusCode: 404,
+      statusMessage: `User not found with id ${id}`,
+    });
   }
 
   return user;

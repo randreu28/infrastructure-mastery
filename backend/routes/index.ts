@@ -1,3 +1,3 @@
 export default eventHandler(() => {
-  return { status: "OK" };
+  return { status: "OK", timestamp: new Date() };
 });

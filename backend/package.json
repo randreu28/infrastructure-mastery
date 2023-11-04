@@ -5,7 +5,8 @@
     "dev": "nitropack dev",
     "build": "nitropack build",
     "preview": "node .output/server/index.mjs",
-    "update-db-schema": "npx kysely-codegen --camel-case --env-file=.env --out-file=./utils/kysely/tables.g.ts --dialect=postgres"
+    "db-update-schema": "npx kysely-codegen --camel-case --env-file=.env --out-file=./utils/kysely/tables.g.ts --dialect=postgres",
+    "db-populate": "npx ts-node -P utils/populate/tsconfig.json utils/populate/populate.ts"
   },
   "dependencies": {
     "kysely": "^0.26.3",
@@ -13,7 +14,9 @@
     "pg": "^8.11.3"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.2.0",
     "@types/pg": "^8.10.7",
-    "kysely-codegen": "^0.11.0"
+    "kysely-codegen": "^0.11.0",
+    "ts-node": "^10.9.1"
   }
 }

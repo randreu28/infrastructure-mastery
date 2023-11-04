@@ -8,7 +8,6 @@
     "update-db-schema": "npx kysely-codegen --camel-case --env-file=.env --out-file=./utils/kysely/tables.g.ts --dialect=postgres"
   },
   "dependencies": {
-    "consola": "^3.2.3",
     "kysely": "^0.26.3",
     "nitropack": "latest",
     "pg": "^8.11.3"

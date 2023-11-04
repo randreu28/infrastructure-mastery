@@ -1,5 +1,5 @@
 import { PostgresDialect } from "kysely";
-import { Pool } from "pg";
+import pg from "pg";
 
 if (
   !process.env.POSTGRES_DB ||
@@ -13,7 +13,7 @@ if (
 }
 
 export const dialect = new PostgresDialect({
-  pool: new Pool({
+  pool: new pg.Pool({
     database: process.env.POSTGRES_DB,
     host: process.env.POSTGRES_HOST,
     user: process.env.POSTGRES_USER,

@@ -1,3 +1,6 @@
+import { db } from "../kysely";
+
 export default eventHandler(() => {
-  return { nitro: 'Is Awesome!' }
-})
+  const posts = db.selectFrom("posts").selectAll().execute();
+  return posts;
+});

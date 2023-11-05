@@ -1,5 +1,3 @@
-import { postSchema } from "../../utils/schemas";
-
 export default eventHandler(async (event) => {
   const post = await readValidatedBody(event, postSchema.safeParse);
 

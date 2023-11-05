@@ -6,7 +6,7 @@ export const postSchema = z.object({
   content: z.string(),
 });
 
-export const commentScema = z.object({
+export const commentSchema = z.object({
   postId: z.number(),
   content: z.string(),
 });

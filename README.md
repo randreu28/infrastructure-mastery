@@ -85,24 +85,30 @@ These are the models:
 
 The database is rather simple. There's two tables, comments and posts. We'll be using those to create a simple blog.
 
-There's a `docker-compose-yml` that initalizes a postgreSQL instance in the port 5432. It uses the `.env.local` file to initalize all the database user, password, host, name, etc.
+There's a `Dockerfile` that initalizes a postgreSQL instance in the port 5432. It will use the `.env.local` file to initalize all the database user, password, host, name, etc.
 
-Notice that the `.env.local` is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env.local` yourself, like so:
+Notice that the `.env` is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env` yourself, like so:
 
 ```bash
-echo "POSTGRES_DB=test" > .env.local
-echo "POSTGRES_HOST=localhost" >> .env.local
-echo "POSTGRES_USER=admin" >> .env.local
-echo "POSTGRES_PASSWORD=admin" >> .env.local
-echo "POSTGRES_PORT=5432" >> .env.local
-echo "POSTGRES_MAX=10" >> .env.local
-echo "DATABASE_URL=postgres://admin:admin@localhost:5432/test" >> .env.local
+echo "POSTGRES_DB=test" > .env
+echo "POSTGRES_HOST=localhost" >> .env
+echo "POSTGRES_USER=admin" >> .env
+echo "POSTGRES_PASSWORD=admin" >> .env
+echo "POSTGRES_PORT=5432" >> .env
+echo "POSTGRES_MAX=10" >> .env
+echo "DATABASE_URL=postgres://admin:admin@localhost:5432/test" >> .env
 ```
 
-Once set the secrets, to mount the local databse, you can run the following command. Make sure you run it with admin privileges (sudo, if you work with linux):
+Once set the secrets, to create the docker image, you can run the following commands:
 
 ```bash
-sudo docker compose up
+docker build -t infra-mastery-database .
+```
+
+To run the container, you can run:
+
+```bash
+docker run --env-file .env -p 5432:5432 infra-mastery-database
 ```
 
 This will mount a postgreSQL container and create all the tables needed. It will also show you all the logs coming from the database. You may run it with the -d flag to run the database on the background. Take into account that stopping the container with `ctrl+C` will not really delete the container, just pause it and leave it in the background.
@@ -110,13 +116,13 @@ This will mount a postgreSQL container and create all the tables needed. It will
 We can check that by listing all containers running with this command:
 
 ```bash
-sudo docker compose ls --all
+sudo docker ps --all
 ```
 
 If you want to really shut down the database (which is the recommended approach), you can run:
 
 ```bash
-sudo docker compose down
+sudo docker rm infra-mastery-database
 ```
 
 ### The backend

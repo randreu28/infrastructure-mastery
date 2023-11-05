@@ -1,5 +1,5 @@
 export default eventHandler(async (event) => {
-  const id = Number(event.context.params.id);
+  const id = Number(event.context.params?.id);
 
   if (isNaN(id)) {
     return sendErr(event, {
@@ -14,9 +14,6 @@ export default eventHandler(async (event) => {
     return sendErr(event, { statusCode: 400, data: post.error });
   }
 
-  /**  Kysely is wrongly infering this type
-   *  See {@link https://github.com/kysely-org/kysely/issues/758 | this issue}
-   */
   const deleted = await db
     .updateTable("posts")
     .where("id", "=", id)

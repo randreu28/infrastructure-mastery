@@ -81,13 +81,19 @@ These are the models:
 
 🚧 TODO 🚧
 
+### A quick word on containers and images
+
+🚧 TODO 🚧
+
 ### The database
 
-The database is rather simple. There's two tables, comments and posts. We'll be using those to create a simple blog.
+The database is rather simple. There is not much code to see, besides a simple SQL file for the creation of the table schemas. There's two tables, comments and posts. We'll be using those to create a simple blog.
 
-There's a `Dockerfile` that initalizes a postgreSQL instance in the port 5432. It will use the `.env.local` file to initalize all the database user, password, host, name, etc.
+All the magic occurs in the [Dockerfile](/database/Dockerfile). I enocurage you to read through te steps to understand everything that is happening behind the scenes!
 
 Notice that the `.env` is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env` yourself, like so:
+
+> Make sure you are in the `/database` directory
 
 ```bash
 echo "POSTGRES_DB=test" > .env
@@ -99,19 +105,23 @@ echo "POSTGRES_MAX=10" >> .env
 echo "DATABASE_URL=postgres://admin:admin@localhost:5432/test" >> .env
 ```
 
-Once set the secrets, to create the docker image, you can run the following commands:
+Once set the secrets, to create the docker image, you can run the following command:
 
 ```bash
 docker build -t infra-mastery-database .
 ```
 
-To run the container, you can run:
+> The -t flag is to give the image a name. In this case, "infra-mastery-database"
+
+This will execute [the dockerfile](/database/Dockerfile). Once the image is created, we can run it in a container with this command:
 
 ```bash
 docker run --env-file .env -p 5432:5432 infra-mastery-database
 ```
 
-This will mount a postgreSQL container and create all the tables needed. It will also show you all the logs coming from the database. You may run it with the -d flag to run the database on the background. Take into account that stopping the container with `ctrl+C` will not really delete the container, just pause it and leave it in the background.
+> The -p flag is to specify the port. We want the port 5432 of the container be piped into our machine's 5432 port
+
+You may run it with the -d flag to run the database on the background. Take into account that stopping the container with `ctrl+C` will not really delete the container, just pause it and leave it in the background.
 
 We can check that by listing all containers running with this command:
 
@@ -119,7 +129,7 @@ We can check that by listing all containers running with this command:
 sudo docker ps --all
 ```
 
-If you want to really shut down the database (which is the recommended approach), you can run:
+If you want to really shut down the database, you can delete the docker container by running:
 
 ```bash
 sudo docker rm infra-mastery-database
@@ -127,11 +137,15 @@ sudo docker rm infra-mastery-database
 
 ### The backend
 
+> I'll be guiding you to configuring a local enviroment first, and then the dockerization.
+
 The backend is a simple node.js server built with [Nitro](https://nitro.unjs.io/). It uses [Kysely](https://kysely.dev/) as a query builder to communicate with the database, and provides a [RESTful](https://en.wikipedia.org/wiki/REST) API to make CRUD actions.
 
 Notice that we provide Kysely with the database secrets using an `.env` file not tracked by git. If you don't have this file yet, you can copy the `.env` file used in the database into the backend directory.
 
-Before running the server, make sure you have the database container up and running. In order to initialize the server, you can run
+Before running the server, make sure you have the database container up and running. In order to initialize the server, you can run:
+
+> Make sure you are in the `/backend` directory
 
 ```bash
 pnpm install
@@ -163,9 +177,25 @@ pnpm run db-populate
 
 After that, you can check the endpoint http://localhost:3000/posts again and you will see some data.
 
-🚧 TODO: DOCKERIZE 🚧
+Great! Now we have to dockerize this application. It runs locally and we can work on it like we usually would, but we have to create a docker image for kubernetes to work on. Let's see how that is done:
 
-Perfect! Now onto the frontend.
+First, let's create the image using [this dockerfile](/backend/Dockerfile). It is highly encouraged to read this file, as it will give you a better understanding of what's going on behind the scenes!
+
+We can create the image by running:
+
+```bash
+docker build -t infra-mastery-backend .
+```
+
+And mounting a container with this command:
+
+```bash
+docker run --env-file .env -p 3000:3000 infra-mastery-backend
+```
+
+Great! Now you can navigate again to http://localhost:3000/ to see the app up and running. Notice that if we navigate to http://localhost:3000/posts, the Nitro API will throw an error, as it will not be able to connect to the database, even if you have the other container also up and running.
+
+This is a network issue, and docker offers ways to solve this problem, but due to the fact that we will be using kubernetes this does not concern us just yet. For now we're satisfied that we can dockerize our API.
 
 ### The frontend
 

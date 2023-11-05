@@ -1,8 +1,9 @@
-# Dockerfile
+# Uses the latest postgres image
 FROM postgres:latest
 
-# Expose port
+# Exposes the port. For postgres, it's always 5432
 EXPOSE 5432
 
-# Copy init scripts
+# Copies the initialization scripts. 
+# This will automatically be executed by postgres at start
 COPY ./init /docker-entrypoint-initdb.d/

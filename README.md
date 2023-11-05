@@ -6,7 +6,7 @@
 
 ## Introduction
 
-Welcome to my ✨Infrastructure Mastery project✨. This project is designed to provide a **comprehensive learning experience** for Kubernetes, Docker, and Terraform. 
+Welcome to my ✨Infrastructure Mastery project✨. This project is designed to provide a **comprehensive learning experience** for Kubernetes, Docker, and Terraform.
 
 It follows a three-layered architecture model. Each layer is containerized using Docker and orchestrated using Kubernetes. The project also demonstrates the use of Terraform for infrastructure as code, and the diagramming using the C4 model of all the system's architecture.
 
@@ -29,7 +29,7 @@ The project will cover the following basics of Kubernetes:
 
 This project structure and setup will provide a solid foundation for learning Terraform, as it covers the basics of infrastructure as code and container orchestration. It will also serve as a demonstration of how to apply skills in software system architecture, following best practices such as the C4 model and the three-layered model.
 
-Without further ado, let's begin! 
+Without further ado, let's begin!
 
 ### The layers
 
@@ -83,9 +83,11 @@ These are the models:
 
 ### The database
 
-The database is rather simple. There's a `docker-compose-yml` that initalizes a postgreSQL instance in the port 5432. It uses the `.env.local` file to initalize all the database user, password, host, name, etc. 
+The database is rather simple. There's two tables, comments and posts. We'll be using those to create a simple blog.
 
-Notice that the `.env.local` is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env.local` yourself, like so: 
+There's a `docker-compose-yml` that initalizes a postgreSQL instance in the port 5432. It uses the `.env.local` file to initalize all the database user, password, host, name, etc.
+
+Notice that the `.env.local` is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env.local` yourself, like so:
 
 ```bash
 echo "POSTGRES_DB=test" > .env.local
@@ -96,6 +98,7 @@ echo "POSTGRES_PORT=5432" >> .env.local
 echo "POSTGRES_MAX=10" >> .env.local
 echo "DATABASE_URL=postgres://admin:admin@localhost:5432/test" >> .env.local
 ```
+
 Once set the secrets, to mount the local databse, you can run the following command. Make sure you run it with admin privileges (sudo, if you work with linux):
 
 ```bash
@@ -116,15 +119,51 @@ If you want to really shut down the database (which is the recommended approach)
 sudo docker compose down
 ```
 
-
 ### The backend
 
-🚧 TODO 🚧
+The backend is a simple node.js server built with [Nitro](https://nitro.unjs.io/). It uses [Kysely](https://kysely.dev/) as a query builder to communicate with the database, and provides a [RESTful](https://en.wikipedia.org/wiki/REST) API to make CRUD actions.
+
+Notice that we provide Kysely with the database secrets using an `.env` file not tracked by git. If you don't have this file yet, you can copy the `.env` file used in the database into the backend directory.
+
+Before running the server, make sure you have the database container up and running. In order to initialize the server, you can run
+
+```bash
+pnpm install
+pnpm run dev
+```
+
+This will make all endpoints avialable! Visit http://localhost:3000 to check if the sever is running. You should get something like this:
+
+```json
+{
+  "status": "OK",
+  "timestamp": "2023-11-05T12:35:13.150Z"
+}
+```
+
+Now, if you go to http://localhost:3000/posts you will be able to see all the posts!
+
+> If you encounter an error (HTTP status code 500). This is likely because you're trying to access the database, but you don't have the container up and running. Make sure you have followed the steps in the previous section.
+
+You may notice that there are no data to show. This is because the database is not filled with data. You can create a new blog by doing a POST request to the same endpoint, or (better yet) you can run a population script that gets in charge of popoulating the database with dummy data.
+
+To execute the population script you can run:
+
+```
+pnpm run db-populate
+```
+
+> Make sure you have the .env file already set up as discussed eariler!
+
+After that, you can check the endpoint http://localhost:3000/posts again and you will see some data.
+
+🚧 TODO: DOCKERIZE 🚧
+
+Perfect! Now onto the frontend.
 
 ### The frontend
 
 🚧 TODO 🚧
-
 
 ### Kubernetes
 

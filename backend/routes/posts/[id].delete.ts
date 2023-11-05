@@ -1,4 +1,4 @@
-export default eventHandler((event) => {
+export default eventHandler(async (event) => {
   const id = Number(event.context.params.id);
 
   if (isNaN(id)) {
@@ -8,18 +8,18 @@ export default eventHandler((event) => {
     });
   }
 
-  const comment = db
-    .selectFrom("posts")
+  const deleted = await db
+    .deleteFrom("posts")
     .where("id", "=", id)
-    .selectAll()
+    .returningAll()
     .executeTakeFirst();
 
-  if (comment === undefined) {
+  if (deleted === undefined) {
     return sendErr(event, {
-      statusCode: 404,
-      statusMessage: `Posts not found with id ${id}`,
+      statusCode: 400,
+      statusMessage: `Could not delete post with id ${id}`,
     });
   }
 
-  return comment;
+  return deleted;
 });

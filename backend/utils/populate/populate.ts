@@ -11,40 +11,27 @@ async function generateRandomData(amount: number, seed: number) {
   for (let i = 0; i < amount; i++) {
     console.log("Fake data #", i);
 
-    const user = await db
-      .insertInto("users")
+    const post = await db
+      .insertInto("posts")
       .values({
-        name: faker.person.fullName(),
-        oauthId: faker.string.uuid(),
+        createdAt: faker.date.recent(),
+        title: faker.lorem.sentence(),
+        content: faker.lorem.paragraphs(),
+        author: faker.person.fullName(),
       })
       .returningAll()
       .executeTakeFirstOrThrow();
 
-    const postAmount = Math.floor(Math.random() * 4) + 2;
-    for (let j = 0; j < postAmount; j++) {
-      const post = await db
-        .insertInto("posts")
+    const commentAmount = Math.floor(Math.random() * 3) + 2;
+    for (let j = 0; j < commentAmount; j++) {
+      await db
+        .insertInto("comments")
         .values({
+          content: faker.lorem.sentences(2),
           createdAt: faker.date.recent(),
-          content: faker.lorem.paragraphs(),
-          title: faker.lorem.sentence(),
-          userId: Number(user.id),
+          postId: Number(post.id),
         })
-        .returningAll()
         .executeTakeFirstOrThrow();
-
-      const commentAmount = Math.floor(Math.random() * 3) + 2;
-      for (let k = 0; k < commentAmount; k++) {
-        await db
-          .insertInto("comments")
-          .values({
-            content: faker.lorem.sentences(2),
-            createdAt: faker.date.recent(),
-            postId: Number(post.id),
-            userId: Number(user.id),
-          })
-          .executeTakeFirstOrThrow();
-      }
     }
   }
   process.exit();

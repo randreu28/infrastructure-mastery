@@ -11,25 +11,17 @@ export interface Comments {
   createdAt: Timestamp;
   id: Generated<number>;
   postId: number;
-  userId: number;
 }
 
 export interface Posts {
+  author: string;
   content: string;
   createdAt: Timestamp;
   id: Generated<number>;
   title: string;
-  userId: number;
-}
-
-export interface Users {
-  id: Generated<number>;
-  name: string;
-  oauthId: string;
 }
 
 export interface DB {
   comments: Comments;
   posts: Posts;
-  users: Users;
 }

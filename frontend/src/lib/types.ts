@@ -1,6 +1,6 @@
 export type Post = {
   id: number;
-  createdAt: Date;
+  createdAt: string;
   title: string;
   author: string;
   content: string;
@@ -8,7 +8,7 @@ export type Post = {
 
 export type Comment = {
   id: number;
-  createdAt: Date;
+  createdAt: string;
   content: string;
   postId: number;
 };

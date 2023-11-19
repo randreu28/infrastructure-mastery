@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM node:18
+FROM node:20
 
 # Set the working directory in the Docker image
 WORKDIR /app
@@ -20,4 +20,4 @@ RUN pnpm run build
 EXPOSE 3000
 
 # Define the command to run the application
-CMD [ "node", ".output/server/index.mjs" ]
+CMD [ "pnpm", "preview" ]

@@ -1,4 +1,4 @@
-export type Post = {
+export type PostType = {
   id: number;
   createdAt: string;
   title: string;
@@ -6,7 +6,7 @@ export type Post = {
   content: string;
 };
 
-export type Comment = {
+export type CommentType = {
   id: number;
   createdAt: string;
   content: string;

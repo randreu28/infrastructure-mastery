@@ -1,11 +1,11 @@
 import { useSetAtom } from "jotai";
 import { postStore } from "../lib/store";
-import type { Post } from "../lib/types";
+import type { PostType } from "../lib/types";
 import useResource from "../lib/useResource";
 import { formatDate } from "../lib/utils";
 
 export default function Posts() {
-  const { data: posts, error, isLoading } = useResource<Post[]>("/posts");
+  const { data: posts, error, isLoading } = useResource<PostType[]>("/posts");
   const setSelectedPost = useSetAtom(postStore);
 
   if (isLoading || !posts) {

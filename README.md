@@ -37,28 +37,25 @@ The project is based on the three-layered architecture. You can find [plenty of 
 
 - **Web Layer**: In our case, a simple single-page application (SPA) built with [React](https://react.dev/) and [Vite](https://vitejs.dev/). This will be written in TypeScript and will communicate with the business logic layer via an API.
 
-- **Business Logic Layer**: A [Nuxt](https://nuxtjs.org/) server that handles all the business logic. This will also be written in TypeScript and will communicate with the persistence layer.
+- **Business Logic Layer**: A [Nitro](https://nitro.unjs.io/) server that handles all the business logic. This will also be written in TypeScript and will act as mediator between the persistence layer and the front-end.
 
 - **Persistence Layer**: A [PostgreSQL](https://www.postgresql.org/) database that stores the data.
 
-The project is structured as follows:
+The project is structured in 3 main directories, with their respective Dockerfile, and the kubernetes directory, where all the container orchestration will be defined:
 
 ```
 infrastructure-mastery/
 │
 ├── frontend/
-│   ├── src/
-│   └── Dockerfile
+│   ├── Dockerfile
 |   └── ...
 │
 ├── backend/
-│   ├── src/
-│   └── Dockerfile
+│   ├── Dockerfile
 |   └── ...
 |
 ├── database/
-│   ├── src/
-│   └── Dockerfile
+│   ├── Dockerfile
 |   └── ...
 │
 └── kubernetes/
@@ -71,7 +68,7 @@ infrastructure-mastery/
 
 ### C4 diagrams
 
-For those unfamiliar with the [C4 model](https://c4model.com/), the C4 model consists of a set of hierarchical diagrams (system Context, Containers, Components, and Code). The creation of these diagrams follows a certain methodology and is used to provide clarity to a team of engineers on what and how to go about the creation of a complex computer system.
+For those unfamiliar with the [C4 model](https://c4model.com/), the C4 model consists of a set of hierarchical diagrams (System **C**ontext, **C**ontainers, **C**omponents, and **C**ode). The creation of these diagrams follows a certain methodology and is used to provide clarity to a team of engineers on what to do and how to go about the creation of a complex computer system.
 
 These are the models:
 
@@ -83,17 +80,25 @@ These are the models:
 
 ### A quick word on containers and images
 
-🚧 TODO 🚧
+### A quick word on containers and images
+
+If you're new to the world of containers and images, think of a container as a package that holds everything your application needs to run, including the code, runtime, system tools, libraries, and settings. It's like a shipping container that can be moved around easily and ensures that the contents are consistent no matter where it's deployed.
+
+An image, on the other hand, is like a blueprint for creating containers. It's a snapshot of a container, containing the application code and all its dependencies. You can think of it as a template that can be used to create multiple identical containers.
+
+If you haven't worked with docker before, don't worry! This will be the perfect time to learn. We'll be going over all the docker commands in the next section.
 
 ### The database
 
+Let's go over the three layers and how they work!
+
 The database is rather simple. There is not much code to see, besides a simple SQL file for the creation of the table schemas. There's two tables, comments and posts. We'll be using those to create a simple blog.
 
-All the magic occurs in the [Dockerfile](/database/Dockerfile). I enocurage you to read through te steps to understand everything that is happening behind the scenes!
+All the magic occurs in the [Dockerfile](/database/Dockerfile). I enocurage you to read through the steps to understand everything that is happening behind the scenes!
 
-Notice that the `.env` is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env` yourself, like so:
+Notice that the `.env` file (the one that is used to tell postgres what user and password will have) is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env` yourself, like so:
 
-> Make sure you are in the `/database` directory
+> Make sure you are in the `/database` directory before executing this command
 
 ```bash
 echo "POSTGRES_DB=test" > .env
@@ -105,7 +110,7 @@ echo "POSTGRES_MAX=10" >> .env
 echo "DATABASE_URL=postgres://admin:admin@localhost:5432/test" >> .env
 ```
 
-Once set the secrets, to create the docker image, you can run the following command:
+This generates the missing `.env` file with all the enviroment variables. Once we have that, to create the docker image, you can run the following command:
 
 ```bash
 docker build -t infra-mastery-database .
@@ -113,21 +118,47 @@ docker build -t infra-mastery-database .
 
 > The -t flag is to give the image a name. In this case, "infra-mastery-database"
 
-This will execute [the dockerfile](/database/Dockerfile). Once the image is created, we can run it in a container with this command:
+> After the name of the image, we specify in which directroy our Dockerfile is. In this case, it is in the same directory we are, hence the dot
+
+This will execute [the dockerfile](/database/Dockerfile). To see all the images we have in our machine, you can run:
+
+```bash
+sudo docker images
+```
+
+Now, take into account that this is similar to a build step. Right now, a "screenshot" was made of the status of our application (in this case, the postgres database) and saved into the image. If we were to change the application (say, we switch from postgreSQL to mySQL, or maybe change the SQL code to initalize the tables) we'd have to redo the image, as it would not have the most recent changes.
+
+If we were to need to redo the image, we could delete the previous image by doing:
+
+```bash
+sudo docker rmi infra-mastery-database
+```
+
+After that, we could redo our image like before and have the image with the new changes! Now, as we tagged our image (we gave it a name) there is no need to delete and reconstruct the image. We could have overwritten it by just doing the initial command. That is why people usually name the images and containers! (And also to be able to differenciate them from other images/containers)
+
+Be careful! This is just an image, not the container. This is not executable in a machine, it has to be packed in a container. To run this image in a container, you can use this command:
 
 ```bash
 docker run --env-file .env -p 5432:5432 infra-mastery-database
 ```
 
-> The -p flag is to specify the port. We want the port 5432 of the container be piped into our machine's 5432 port
+> The --env-file flag is to specify which file to use for the enviroment variables, which in our case is `.env`.
+
+> The -p flag is to specify the port. We want the port 5432 of the container be piped into our machine's 5432 port.
+
+> After the -p flag, we specify which image will use for that container.
 
 You may run it with the -d flag to run the database on the background. Take into account that stopping the container with `ctrl+C` will not really delete the container, just pause it and leave it in the background.
 
-We can check that by listing all containers running with this command:
+We can check if it's still running that by listing all containers with this command:
 
 ```bash
 sudo docker ps --all
 ```
+
+> We use the ps command to list the containers. This by default will only show the ones running
+
+> The --all flag is used to list all containers, even the ones that are paused
 
 If you want to really shut down the database, you can delete the docker container by running:
 
@@ -148,7 +179,7 @@ Before running the server, make sure you have the database container up and runn
 > Make sure you are in the `/backend` directory
 
 ```bash
-pnpm install
+pnpm install # or npm or yarn, it doesn't really matter. I prefer pnpm
 pnpm run dev
 ```
 
@@ -157,13 +188,13 @@ This will make all endpoints avialable! Visit http://localhost:3000 to check if 
 ```json
 {
   "status": "OK",
-  "timestamp": "2023-11-05T12:35:13.150Z"
+  "timestamp": "2023-11-05T12:35:13.150Z" // This should be the current date
 }
 ```
 
 Now, if you go to http://localhost:3000/posts you will be able to see all the posts!
 
-> If you encounter an error (HTTP status code 500). This is likely because you're trying to access the database, but you don't have the container up and running. Make sure you have followed the steps in the previous section.
+> If you encounter an error (HTTP status code 500). This is likely because you're trying to access the database, but you don't have the database container up and running. Make sure you have followed the steps in the previous section.
 
 You may notice that there are no data to show. This is because the database is not filled with data. You can create a new blog by doing a POST request to the same endpoint, or (better yet) you can run a population script that gets in charge of popoulating the database with dummy data.
 
@@ -195,11 +226,42 @@ docker run --env-file .env -p 3000:3000 infra-mastery-backend
 
 Great! Now you can navigate again to http://localhost:3000/ to see the app up and running. Notice that if we navigate to http://localhost:3000/posts, the Nitro API will throw an error, as it will not be able to connect to the database, even if you have the other container also up and running.
 
-This is a network issue, and docker offers ways to solve this problem, but due to the fact that we will be using kubernetes this does not concern us just yet. For now we're satisfied that we can dockerize our API.
+This is a network issue. They are not set up to be working in the same network, so the Nitro app is trying to find something in the port 5432 (the port where postgreSQL should be running) and it does not find it. Docker offers ways to solve this problem, but due to the fact that we will be using kubernetes (Something much more robust) this does not concern us just yet. For now we're satisfied that we can dockerize our API.
 
 ### The frontend
 
-🚧 TODO 🚧
+The frontend is very simple. It uses [React](https://react.dev/) and [Vite](https://vitejs.dev/). It's written in Typescript aswell.
+
+You can run the app like so:
+
+> Make sure you are in the /frontend directory
+
+```bash
+pnpm install # or npm or yarn, it doesn't really matter. I prefer pnpm
+pnpm run dev
+```
+
+Great! Now you can visit http://localhost:5173/ to see the application.
+
+> You will get a blank screen and a client-side error. (In the browser console). This is because there are some enviroment variables missing. To add them, you can do:
+
+```bash
+echo "VITE_API_URL=http://localhost:3000" > .env
+```
+
+Now, if you have the docker container of the database running, and the backend running also as shown, you will be able to see the front with all the posts and comments! Now, let's dockerize it.
+
+We can create the image by running:
+
+```bash
+docker build -t infra-mastery-frontend .
+```
+
+And mounting a container with this command:
+
+```bash
+docker run --env-file .env -p 5173:5173 infra-mastery-frontend
+```
 
 ### Kubernetes
 

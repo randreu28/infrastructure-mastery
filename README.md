@@ -243,11 +243,7 @@ pnpm run dev
 
 Great! Now you can visit http://localhost:5173/ to see the application.
 
-> You will get a blank screen and a client-side error. (In the browser console). This is because there are some enviroment variables missing. To add them, you can do:
-
-```bash
-echo "VITE_API_URL=http://localhost:3000" > .env
-```
+> This application does not use enviroment variables, due to some incompatibilities with how vite handles them. For more information, check the comment on [this file](/frontend/src/lib/useResource.ts)
 
 Now, if you have the docker container of the database running, and the backend running also as shown, you will be able to see the front with all the posts and comments! Now, let's dockerize it.
 
@@ -260,7 +256,7 @@ docker build -t infra-mastery-frontend .
 And mounting a container with this command:
 
 ```bash
-docker run --env-file .env -p 5173:5173 infra-mastery-frontend
+docker run -p 4173:4173 infra-mastery-frontend
 ```
 
 ### Kubernetes

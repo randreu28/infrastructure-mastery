@@ -5,10 +5,10 @@ import useResource from "../lib/useResource";
 import { formatDate } from "../lib/utils";
 
 export default function Posts() {
-  const { data: posts, error, isLoading } = useResource<Post>("/posts");
+  const { data: posts, error, isLoading } = useResource<Post[]>("/posts");
   const setSelectedPost = useSetAtom(postStore);
 
-  if (isLoading) {
+  if (isLoading || !posts) {
     return (
       <p className="flex h-screen items-center justify-center py-5 text-2xl">
         Loading...
@@ -16,7 +16,7 @@ export default function Posts() {
     );
   }
 
-  if (error) {
+  if (error !== undefined) {
     return (
       <p className="flex h-screen items-center justify-center py-5 text-2xl text-red-500">
         An error occured. Please try again later

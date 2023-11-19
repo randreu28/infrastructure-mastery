@@ -8,18 +8,17 @@ if (!import.meta.env.VITE_API_URL) {
 const baseUrl: string = import.meta.env.VITE_API_URL;
 
 export default function useResource<T>(endpoint: string) {
-  const [data, setData] = useState<T[]>([]);
+  const [data, setData] = useState<T>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get<T[]>(baseUrl + endpoint)
+      .get<T>(baseUrl + endpoint)
       .then(({ data }) => setData(data))
-      .catch((e) => setError(e));
-
-    setIsLoading(false);
+      .catch((e) => setError(e))
+      .finally(() => setIsLoading(false));
   }, [endpoint]);
 
   return {

@@ -1,11 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-if (!import.meta.env.VITE_API_URL) {
-  throw Error("Enviroment variables missing");
-}
-
-const baseUrl: string = import.meta.env.VITE_API_URL;
+/**
+ *  This is hardcoded due to the way vite environment variables are handled. 
+ *  See {@link https://github.com/vitejs/vite/issues/10059 | this} issue for more info
+ */
+const baseUrl = "http://localhost:3000";
 
 export default function useResource<T>(endpoint: string) {
   const [data, setData] = useState<T>();

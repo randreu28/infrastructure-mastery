@@ -92,6 +92,8 @@ Let's go over the three layers and how they work!
 
 The database is rather simple. There is not much code to see, besides a simple SQL file for the creation of the table schemas. There's two tables, comments and posts. We'll be using those to create a simple blog.
 
+![database](/images/database.png)
+
 All the magic occurs in the [Dockerfile](/database/Dockerfile). I enocurage you to read through the steps to understand everything that is happening behind the scenes!
 
 Notice that the `.env` file (the one that is used to tell postgres what user and password will have) is not tracked by git. This is intentional, as these are secrets that shouldn't be tracked with a git repository. In order to initialize the database locally, you might need to create your own `.env` yourself, like so:
@@ -170,6 +172,8 @@ sudo docker rm infra-mastery-database
 
 The backend is a simple node.js server built with [Nitro](https://nitro.unjs.io/). It uses [Kysely](https://kysely.dev/) as a query builder to communicate with the database, and provides a [RESTful](https://en.wikipedia.org/wiki/REST) API to make CRUD actions.
 
+![backend](/images/backend.png)
+
 Notice that we provide Kysely with the database secrets using an `.env` file not tracked by git. If you don't have this file yet, you can copy the `.env` file used in the database into the backend directory.
 
 Before running the server, make sure you have the database container up and running. In order to initialize the server, you can run:
@@ -231,6 +235,8 @@ This is a network issue. They are not set up to be working in the same network, 
 ### The frontend
 
 The frontend is very simple. It uses [React](https://react.dev/) and [Vite](https://vitejs.dev/). It's written in Typescript aswell.
+
+![frontend](/images/frontend.png)
 
 You can run the app like so:
 

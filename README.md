@@ -80,8 +80,6 @@ These are the models:
 
 ### A quick word on containers and images
 
-### A quick word on containers and images
-
 If you're new to the world of containers and images, think of a container as a package that holds everything your application needs to run, including the code, runtime, system tools, libraries, and settings. It's like a shipping container that can be moved around easily and ensures that the contents are consistent no matter where it's deployed.
 
 An image, on the other hand, is like a blueprint for creating containers. It's a snapshot of a container, containing the application code and all its dependencies. You can think of it as a template that can be used to create multiple identical containers.
@@ -188,9 +186,11 @@ This will make all endpoints avialable! Visit http://localhost:3000 to check if 
 ```json
 {
   "status": "OK",
-  "timestamp": "2023-11-05T12:35:13.150Z" // This should be the current date
+  "timestamp": "2023-11-05T12:35:13.150Z"
 }
 ```
+
+> The timestamp should be the current date
 
 Now, if you go to http://localhost:3000/posts you will be able to see all the posts!
 

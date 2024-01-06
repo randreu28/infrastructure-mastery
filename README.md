@@ -265,7 +265,40 @@ And mounting a container with this command:
 docker run -p 4173:4173 infra-mastery-frontend
 ```
 
-### Kubernetes
+## Kubernetes
+
+🚧 TODO 🚧
+
+### The frontend
+
+make sure minikube is not running (minikube status)
+
+make sure you have the 3 docker image builds. YOu should see something like this:
+
+> The gcr.io one is the minikube image. It gets created when you run minikube for the first time
+
+```bash
+docker images --all
+REPOSITORY                    TAG       IMAGE ID       CREATED          SIZE
+infra-mastery-database        latest    386051bf3d08   35 minutes ago   425MB
+infra-mastery-backend         latest    51eb81da110d   37 minutes ago   327MB
+infra-mastery-frontend        latest    c4fe8eb6f173   40 minutes ago   341MB
+gcr.io/k8s-minikube/kicbase   v0.0.42   dbc648475405   2 months ago     1.2GB
+```
+
+Then:
+
+```bash
+minikube start
+minikube addons enable ingress # This does not make as much sense in minkube as it will always all local, but it does make avaialbie certain routing configuration and specific ingress config details
+
+minikube image load infra-mastery-frontend:latest # Load the docker images inside minikube
+
+# Apply yamls!
+kubectl apply -f kubernetes/frontend/deployment.yaml
+kubectl apply -f kubernetes/frontend/service.yaml
+kubectl apply -f kubernetes/frontend/ingress.yaml
+```
 
 🚧 TODO 🚧
 

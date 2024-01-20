@@ -405,11 +405,74 @@ minikube service frontend-service --ur
 
 ### Configuring the backend
 
-🚧 TODO 🚧
+Now that you now the basics, it's a matter of repetition. 2 yaml's this time, the [deployment](/kubernetes/backend/deployment.yaml) and the [service](/kubernetes/backend/service.yaml). They both behave similar to the ones in the frontend.
+
+Notice that there is no ingress this time! This is intentionall, as we only want to expose the backend to our frontend application, such that it becomes the only access point to the kluster.
+
+To apply this changes, you can run:
+```
+kubectl apply -f kubernetes/backend/deployment.yaml
+kubectl apply -f kubernetes/backend/service.yaml
+```
+
 
 ### Configuring the database
 
+The backend is a bit special. Kubernetes is great at destroying pods and creating them again in case there is any problem with them. But what about a database? You can't just destory a database and create it once again without losing the data.
+
+For that we'll use persistent volumes and persistent volume claims.
+
+In Kubernetes, Persistent Volumes (PVs) and Persistent Volume Claims (PVCs) are used to manage storage. This is particularly important for stateful applications, like our database.
+
+The [Persistent Volume (PV)](/kubernetes/database/persistent-volume.yaml) serves as a piece of storage in the cluster that has been provisioned by an administrator or dynamically provisioned using Storage Classes. It is a resource in the cluster just like a node is a cluster resource.
+
+The [Persistent Volume Claim (PVC)](/kubernetes/database/persistent-volume-claim.yaml) serves as a request for storage by a user. It is similar to a pod. Pods consume node resources and PVCs consume PV resources.
+
+To apply this changes, you can run:
+```
+kubectl apply -f kubernetes/database/deployment.yaml
+kubectl apply -f kubernetes/database/service.yaml
+kubectl apply -f kubernetes/database/persistent-volume.yaml
+kubectl apply -f kubernetes/database/persistent-volume-claim.yaml
+```
+
+### Managing secrets
+
+In Kubernetes, secrets are used to manage sensitive information, such as passwords, OAuth tokens, and ssh keys. Storing this sensitive information in a Secret is safer and more flexible than putting it verbatim in a Pod definition or in a container image.
+
+We have a [secret file](/kubernetes/secrets/db-credentials.yaml) which contains the database credentials. The data field of the Secret is used to store arbitrary data, encoded using base64. This encoding allows the secret data to be safely used in a wide variety of environments, without the risk of the data being exposed.
+
+```
+# This is the non-enconded version of db-credentials.yaml, in .env format
+POSTGRES_DB="test"
+POSTGRES_HOST="localhost"
+POSTGRES_USER="admin"
+POSTGRES_PASSWORD="admin"
+POSTGRES_PORT="5432"
+POSTGRES_MAX="10"
+DATABASE_URL="postgres://admin:admin@database-service:5432/test"
+```
+
+> Notice that the DATABASE_URL is a bit different from the one that we would use without k8s involved. This is because the database is a service of type ClusterIP, meaning that it is only accesible iniside the cluster. This is so to prevent vulnerabilities and external attacks. To reference services inside our k8s network, we can use the service name (hence why it is no longer localhost:5432 but database-service:5432. This will be explained in detail in the next section
+
+
+Here is how you can apply the secret:
+```
+kubectl apply -f kubernetes/secrets/db-credentials.yaml
+```
+
+This command will create a secret named `db-credentials` in the cluster. The secret can then be used by other parts of your system, while keeping the sensitive data safe. For example, you might have noticed on teh database and backend deployment files this lines, that refernece the use of these secrets when spinning up the pods:
+
+```yaml
+        envFrom:
+        - secretRef:
+            name: db-credentials
+```
+
+### Internal and external connections
+
 🚧 TODO 🚧
+
 
 ## That's it!
 

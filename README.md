@@ -6,9 +6,9 @@
 
 ## Introduction
 
-Welcome to my ✨Infrastructure Mastery project✨. This project is designed to provide a **comprehensive learning experience** for Kubernetes, Docker, and Terraform.
+Welcome to my ✨Infrastructure Mastery project✨. This project is designed to provide a **comprehensive learning experience** for Kubernetes and Docker.
 
-It follows a three-layered architecture model. Each layer is containerized using Docker and orchestrated using Kubernetes. The project also demonstrates the use of Terraform for infrastructure as code, and the diagramming using the C4 model of all the system's architecture.
+It follows a three-layered architecture model. Each layer is containerized using Docker and orchestrated using Kubernetes. The project also demonstrates the use of yaml's for infrastructure as code, and the diagramming using the C4 model of all the system's architecture.
 
 ## Why is this useful to you?
 
@@ -30,6 +30,32 @@ The project will cover the following basics of Kubernetes:
 This project structure and setup will provide a solid foundation for learning Terraform, as it covers the basics of infrastructure as code and container orchestration. It will also serve as a demonstration of how to apply skills in software system architecture, following best practices such as the C4 model and the three-layered model.
 
 Without further ado, let's begin!
+
+
+### Prerequisites for a local development environment
+
+- Docker (See [Docker docs](https://docs.docker.com/engine/install/))
+ > To build the images of all 3 applications
+ - Kubernetes (k8s)  (see [The  official k8s installation docs](https://kubernetes.io/docs/tasks/tools/))
+ > For configuring the cluster
+- Minikube (See [installation docs](https://minikube.sigs.k8s.io/docs/start/))
+ > To execute the local k8s cluster
+- Node.js (See [Node.js official downlaod page](https://nodejs.org/en/download))
+ > If you want to run locally the applications before doing the images
+
+### A quick word on containers and images
+
+If you're new to the world of containers and images, think of a container as a package that holds everything your application needs to run, including the code, runtime, system tools, libraries, and settings. It's like a shipping container that can be moved around easily and ensures that the contents are consistent no matter where it's deployed.
+
+An image, on the other hand, is like a blueprint for creating containers. It's a snapshot of a container, containing the application code and all its dependencies. You can think of it as a template that can be used to create multiple identical containers.
+
+If you haven't worked with docker before, don't worry! This will be the perfect time to learn. We'll be going over all the docker commands in the next sections.
+
+### A word on minikube
+
+Minikube is just another container. It differs from normal kubernetes clusters because it does not run in different machines in also even in cloud severs that you rent, as you would usuallly do in a normal kubernetes infrastructure. As this will only be for getting familiar with the tools and to understand how everything works, we'll be doing everything locally and in only one machine. In a virtualized manner, sort to speak, instead of the phyisical approach of configuring and syncronizing multiple servers.
+
+This will save us a bit of work and will help us focus on what we really care: Learning how it works and how to configure it.
 
 ### The layers
 
@@ -74,21 +100,31 @@ These are the models:
 
 🚧 TODO 🚧
 
-### Prerequisites for a local development environment
+### Minikube setup
 
-🚧 TODO 🚧
+Once you have minikube set up, you can check if its running with the following command:
 
-### A quick word on containers and images
+```minikube status``
 
-If you're new to the world of containers and images, think of a container as a package that holds everything your application needs to run, including the code, runtime, system tools, libraries, and settings. It's like a shipping container that can be moved around easily and ensures that the contents are consistent no matter where it's deployed.
+To start it, you can run:
 
-An image, on the other hand, is like a blueprint for creating containers. It's a snapshot of a container, containing the application code and all its dependencies. You can think of it as a template that can be used to create multiple identical containers.
+```
+minikube start --addon=ingress
+```
+> The ingress addon is an official minikube addon that allows us to play with certain routing configuration and specific ingress config details.
 
-If you haven't worked with docker before, don't worry! This will be the perfect time to learn. We'll be going over all the docker commands in the next section.
+Now, before configuring minikube, we have to set up all of our application image's into the minikube instance. This must be done inside the minikube container and there are multiple ways to achieve this (See [here](https://minikube.sigs.k8s.io/docs/handbook/pushing/) for the full list).
+
+What we will do is configure docker to point to the docker engine inside minikube itself, and we can achive this with this command:
+
+```
+eval $(minikube docker-env)
+```
+Now, every command we do with docker, it will run inside minikube, such that when we tell minikube how to run our applications, it will have all the images necessary to do so.
 
 ### The database
 
-Let's go over the three layers and how they work!
+Let's go over the three layers, how they work and how to build ther images for minikube!
 
 The database is rather simple. There is not much code to see, besides a simple SQL file for the creation of the table schemas. There's two tables, comments and posts. We'll be using those to create a simple blog.
 
@@ -125,6 +161,7 @@ This will execute [the dockerfile](/database/Dockerfile). To see all the images 
 ```bash
 sudo docker images
 ```
+> Besides the one we just built, you should also see some images that minikube uses internally. If not, follow the steps in the minikube setup section
 
 Now, take into account that this is similar to a build step. Right now, a "screenshot" was made of the status of our application (in this case, the postgres database) and saved into the image. If we were to change the application (say, we switch from postgreSQL to mySQL, or maybe change the SQL code to initalize the tables) we'd have to redo the image, as it would not have the most recent changes.
 
@@ -265,43 +302,118 @@ And mounting a container with this command:
 docker run -p 4173:4173 infra-mastery-frontend
 ```
 
-## Kubernetes
+## Kubernetes 
 
-🚧 TODO 🚧
+If you've reached this point, you're almost there! The applications are contenerized, minikube has been set up, now it's all about configuring the cluster.
 
-### The frontend
+Before proceding any further, you should check you have all the images you need:
 
-make sure minikube is not running (minikube status)
+```
+docker image ls
 
-make sure you have the 3 docker image builds. YOu should see something like this:
-
-> The gcr.io one is the minikube image. It gets created when you run minikube for the first time
-
-```bash
-docker images --all
-REPOSITORY                    TAG       IMAGE ID       CREATED          SIZE
-infra-mastery-database        latest    386051bf3d08   35 minutes ago   425MB
-infra-mastery-backend         latest    51eb81da110d   37 minutes ago   327MB
-infra-mastery-frontend        latest    c4fe8eb6f173   40 minutes ago   341MB
-gcr.io/k8s-minikube/kicbase   v0.0.42   dbc648475405   2 months ago     1.2GB
+REPOSITORY                                           TAG       IMAGE ID       CREATED              SIZE
+infra-mastery-database                               latest    6ba9084f8f48   32 minutes ago       425MB
+infra-mastery-backend                                latest    ca4f63bf0d62   31 minutes ago       327MB
+infra-mastery-frontend                               latest    d24f0c9c146d   30 minutes ago       341MB
+registry.k8s.io/ingress-nginx/controller             <none>    5aa0bf4798fa   2 months ago         273MB
+registry.k8s.io/kube-apiserver                       v1.28.3   537434729123   3 months ago         126MB
+registry.k8s.io/kube-scheduler                       v1.28.3   6d1b4fd1b182   3 months ago         60.1MB
+registry.k8s.io/kube-controller-manager              v1.28.3   10baa1ca1706   3 months ago         122MB
+registry.k8s.io/kube-proxy                           v1.28.3   bfc896cf80fb   3 months ago         73.1MB
+registry.k8s.io/ingress-nginx/kube-webhook-certgen   <none>    1ebff0f9671b   3 months ago         53.7MB
+registry.k8s.io/etcd                                 3.5.9-0   73deb9a3f702   8 months ago         294MB
+registry.k8s.io/coredns/coredns                      v1.10.1   ead0a4a53df8   11 months ago        53.6MB
+registry.k8s.io/pause                                3.9       e6f181688397   15 months ago        744kB
+kubernetesui/dashboard                               <none>    07655ddf2eeb   16 months ago        246MB
+kubernetesui/metrics-scraper                         <none>    115053965e86   20 months ago        43.8MB
+gcr.io/k8s-minikube/storage-provisioner              v5        6e38f40d628d   2 years ago          31.5MB
 ```
 
-Then:
+If you have all 3 of the images beginning with infra-mastery, as well as the rest of minikube images, then you're in the right path.
 
-```bash
-minikube start
-minikube addons enable ingress # This does not make as much sense in minkube as it will always all local, but it does make avaialbie certain routing configuration and specific ingress config details
+Next, let's spin up the minikube dashboard. This will allow us to have an easy way to check on how the status of our cluster is looking, and is great particullarly for beginners.
 
-minikube image load infra-mastery-frontend:latest # Load the docker images inside minikube
+To start the dashboard, run
 
-# Apply yamls!
+```
+minikube dashoboard
+```
+
+> This will give you a link to access a cool looking dashboard. But don't worry if you don't see anything yet! We haven't setted it up, so you won't seem uch
+
+
+Before we dive into the configuration, let's understand some basic Kubernetes nomenclature:
+
+- **Pods**: The smallest and simplest unit in the Kubernetes object model that you create or deploy. A Pod represents a running process on your cluster. It is what in Docker we call a container.
+
+- **Services**: An abstract way to expose an application running on a set of Pods as a network service. Services are the way to network pods.
+
+- **Deployments**: A Deployment controller provides declarative updates for Pods and ReplicaSets. You describe a desired state in a Deployment, and the Deployment Controller changes the actual state to the desired state at a controlled rate.
+
+- **Namespaces**: Kubernetes supports multiple virtual clusters backed by the same physical cluster. These virtual clusters are called namespaces.
+
+Now that we have a basic understanding of these terms, let's proceed with the setup.
+
+### Configuring the frontend
+ 
+Kubernetes is interacted mainly with the kubectl CLI. This will allow os to set up pods, services, deployments, namespaces...
+But doing this from the command line can be a challenge, and you can't easily revisit what commands did you use or how is the cluster set up now.
+That is why most of engineers use yaml's to describe all the configuration, in text. This way, you can version all your configuration and modify them easily.
+
+> If you're not familiar with yaml's, think of them as JSON's, but with a bit more of capabilities. 
+
+> If you're a vscode user like me, you might be interested in the (Kubernetes extension)[https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools]. If you are not, make a quick google search, I'm sure you'll find something equivalent for your IDE. This extension will help you with some autocompletions in the yaml's.
+
+The frontend configuration is based on 3 yamls:
+
+1. (deployment.yaml)[/kubernetes/frontend/deployment.yaml]: This file is used to create a Deployment in Kubernetes. A Deployment is a Kubernetes object that represents a set of multiple, identical Pods with no unique identities. It is used to keep the Pods running and update them in a controlled way.
+
+> The Deployment specifies the number of replicas (instances) of the application that should be running, the Docker image to use for creating the Pods, and the resources (CPU and memory) to allocate for each Pod.
+
+2. service.yaml: This file is used to create a Service in Kubernetes. A Service is an abstract way to expose an application running on a set of Pods as a network service. It defines a logical set of Pods and a policy by which to access them. 
+
+> Imagine it as the trafic police officer who tells when the cars have to stop or to continue, but with network connections between pods.
+
+3. ingress.yaml: This file is used to create an Ingress in Kubernetes. An Ingress is an API object that manages external access to the services in a cluster, typically HTTP. Ingress can provide load balancing, SSL termination and name-based virtual hosting. 
+
+> As a default, no pods have an ingress, and all communication between pods is exclusively internal. But when you need to expose something to the internet (for example, our frontend), then you need to decalre an ingress. This way, even though our frontend has access to the backend, only the frontend is exposed to the world.
+
+Feel free to read the [files](/kubernetes/frontend/) and play arround with them. It's the best way to learn!
+
+
+To apply this changes, you can run:
+```
 kubectl apply -f kubernetes/frontend/deployment.yaml
 kubectl apply -f kubernetes/frontend/service.yaml
 kubectl apply -f kubernetes/frontend/ingress.yaml
 ```
 
+![Dashboard](/images/dashboard.png)
+
+You can check the status of your deployment using the dashboard, or the CLI:
+```
+kubectl get pods
+```
+
+Yuu can get the local URL to access the frontend with the following command:
+
+```
+minikube service frontend-service --ur
+```
+
+> You'll notice the frontend is not finding the backend! This is because we haven't set up the backend yet. Let's keep going!
+
+### Configuring the backend
+
 🚧 TODO 🚧
 
-### Credits
+### Configuring the database
 
 🚧 TODO 🚧
+
+## That's it!
+
+Next steps you might want to take is to move this cluster to the cloud, for a better feel of a real world scenario.
+
+Thank you for reading!
+

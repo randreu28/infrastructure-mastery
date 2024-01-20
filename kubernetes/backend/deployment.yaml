@@ -18,6 +18,9 @@ spec:
       - name: backend
         image: infra-mastery-backend:latest
         imagePullPolicy: Never
+        envFrom:
+        - secretRef:
+            name: db-credentials
         ports:
         - containerPort: 3000
         resources:

@@ -15,18 +15,18 @@ spec:
         app: backend
     spec:
       containers:
-      - name: backend
-        image: infra-mastery-backend:latest
-        imagePullPolicy: Never
-        envFrom:
-        - secretRef:
-            name: db-credentials
-        ports:
-        - containerPort: 3000
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
+        - name: backend
+          image: infra-mastery-backend:latest
+          imagePullPolicy: Never
+          envFrom:
+            - secretRef:
+                name: connections
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"

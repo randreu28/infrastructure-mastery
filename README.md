@@ -31,17 +31,16 @@ This project structure and setup will provide a solid foundation for learning Te
 
 Without further ado, let's begin!
 
-
 ### Prerequisites for a local development environment
 
 - Docker (See [Docker docs](https://docs.docker.com/engine/install/))
- > To build the images of all 3 applications
- - Kubernetes (k8s)  (see [The  official k8s installation docs](https://kubernetes.io/docs/tasks/tools/))
- > For configuring the cluster
+  > To build the images of all 3 applications
+- Kubernetes (k8s) (see [The official k8s installation docs](https://kubernetes.io/docs/tasks/tools/))
+  > For configuring the cluster
 - Minikube (See [installation docs](https://minikube.sigs.k8s.io/docs/start/))
- > To execute the local k8s cluster
+  > To execute the local k8s cluster
 - Node.js (See [Node.js official downlaod page](https://nodejs.org/en/download))
- > If you want to run locally the applications before doing the images
+  > If you want to run locally the applications before doing the images
 
 ### A quick word on containers and images
 
@@ -104,13 +103,14 @@ These are the models:
 
 Once you have minikube set up, you can check if its running with the following command:
 
-```minikube status``
+``minikube status`
 
 To start it, you can run:
 
 ```
-minikube start --addon=ingress
+minikube start --addons=ingress
 ```
+
 > The ingress addon is an official minikube addon that allows us to play with certain routing configuration and specific ingress config details.
 
 Now, before configuring minikube, we have to set up all of our application image's into the minikube instance. This must be done inside the minikube container and there are multiple ways to achieve this (See [here](https://minikube.sigs.k8s.io/docs/handbook/pushing/) for the full list).
@@ -120,6 +120,7 @@ What we will do is configure docker to point to the docker engine inside minikub
 ```
 eval $(minikube docker-env)
 ```
+
 Now, every command we do with docker, it will run inside minikube, such that when we tell minikube how to run our applications, it will have all the images necessary to do so.
 
 ### The database
@@ -161,6 +162,7 @@ This will execute [the dockerfile](/database/Dockerfile). To see all the images 
 ```bash
 sudo docker images
 ```
+
 > Besides the one we just built, you should also see some images that minikube uses internally. If not, follow the steps in the minikube setup section
 
 Now, take into account that this is similar to a build step. Right now, a "screenshot" was made of the status of our application (in this case, the postgres database) and saved into the image. If we were to change the application (say, we switch from postgreSQL to mySQL, or maybe change the SQL code to initalize the tables) we'd have to redo the image, as it would not have the most recent changes.
@@ -302,7 +304,7 @@ And mounting a container with this command:
 docker run -p 4173:4173 infra-mastery-frontend
 ```
 
-## Kubernetes 
+## Kubernetes
 
 If you've reached this point, you're almost there! The applications are contenerized, minikube has been set up, now it's all about configuring the cluster.
 
@@ -336,11 +338,10 @@ Next, let's spin up the minikube dashboard. This will allow us to have an easy w
 To start the dashboard, run
 
 ```
-minikube dashoboard
+minikube dashboard
 ```
 
 > This will give you a link to access a cool looking dashboard. But don't worry if you don't see anything yet! We haven't setted it up, so you won't seem uch
-
 
 Before we dive into the configuration, let's understand some basic Kubernetes nomenclature:
 
@@ -355,12 +356,12 @@ Before we dive into the configuration, let's understand some basic Kubernetes no
 Now that we have a basic understanding of these terms, let's proceed with the setup.
 
 ### Configuring the frontend
- 
+
 Kubernetes is interacted mainly with the kubectl CLI. This will allow os to set up pods, services, deployments, namespaces...
 But doing this from the command line can be a challenge, and you can't easily revisit what commands did you use or how is the cluster set up now.
 That is why most of engineers use yaml's to describe all the configuration, in text. This way, you can version all your configuration and modify them easily.
 
-> If you're not familiar with yaml's, think of them as JSON's, but with a bit more of capabilities. 
+> If you're not familiar with yaml's, think of them as JSON's, but with a bit more of capabilities.
 
 > If you're a vscode user like me, you might be interested in the (Kubernetes extension)[https://marketplace.visualstudio.com/items?itemName=ms-kubernetes-tools.vscode-kubernetes-tools]. If you are not, make a quick google search, I'm sure you'll find something equivalent for your IDE. This extension will help you with some autocompletions in the yaml's.
 
@@ -370,18 +371,18 @@ The frontend configuration is based on 3 yamls:
 
 > The Deployment specifies the number of replicas (instances) of the application that should be running, the Docker image to use for creating the Pods, and the resources (CPU and memory) to allocate for each Pod.
 
-2. service.yaml: This file is used to create a Service in Kubernetes. A Service is an abstract way to expose an application running on a set of Pods as a network service. It defines a logical set of Pods and a policy by which to access them. 
+2. service.yaml: This file is used to create a Service in Kubernetes. A Service is an abstract way to expose an application running on a set of Pods as a network service. It defines a logical set of Pods and a policy by which to access them.
 
 > Imagine it as the trafic police officer who tells when the cars have to stop or to continue, but with network connections between pods.
 
-3. ingress.yaml: This file is used to create an Ingress in Kubernetes. An Ingress is an API object that manages external access to the services in a cluster, typically HTTP. Ingress can provide load balancing, SSL termination and name-based virtual hosting. 
+3. ingress.yaml: This file is used to create an Ingress in Kubernetes. An Ingress is an API object that manages external access to the services in a cluster, typically HTTP. Ingress can provide load balancing, SSL termination and name-based virtual hosting.
 
 > As a default, no pods have an ingress, and all communication between pods is exclusively internal. But when you need to expose something to the internet (for example, our frontend), then you need to decalre an ingress. This way, even though our frontend has access to the backend, only the frontend is exposed to the world.
 
 Feel free to read the [files](/kubernetes/frontend/) and play arround with them. It's the best way to learn!
 
-
 To apply this changes, you can run:
+
 ```
 kubectl apply -f kubernetes/frontend/deployment.yaml
 kubectl apply -f kubernetes/frontend/service.yaml
@@ -391,6 +392,7 @@ kubectl apply -f kubernetes/frontend/ingress.yaml
 ![Dashboard](/images/dashboard.png)
 
 You can check the status of your deployment using the dashboard, or the CLI:
+
 ```
 kubectl get pods
 ```
@@ -410,11 +412,11 @@ Now that you now the basics, it's a matter of repetition. 2 yaml's this time, th
 Notice that there is no ingress this time! This is intentionall, as we only want to expose the backend to our frontend application, such that it becomes the only access point to the kluster.
 
 To apply this changes, you can run:
+
 ```
 kubectl apply -f kubernetes/backend/deployment.yaml
 kubectl apply -f kubernetes/backend/service.yaml
 ```
-
 
 ### Configuring the database
 
@@ -429,6 +431,7 @@ The [Persistent Volume (PV)](/kubernetes/database/persistent-volume.yaml) serves
 The [Persistent Volume Claim (PVC)](/kubernetes/database/persistent-volume-claim.yaml) serves as a request for storage by a user. It is similar to a pod. Pods consume node resources and PVCs consume PV resources.
 
 To apply this changes, you can run:
+
 ```
 kubectl apply -f kubernetes/database/deployment.yaml
 kubectl apply -f kubernetes/database/service.yaml
@@ -442,21 +445,31 @@ In Kubernetes, secrets are used to manage sensitive information, such as passwor
 
 We have a [secret file](/kubernetes/secrets/db-credentials.yaml) which contains the database credentials. The data field of the Secret is used to store arbitrary data, encoded using base64. This encoding allows the secret data to be safely used in a wide variety of environments, without the risk of the data being exposed.
 
+You can encode any secret like so:
+
 ```
-# This is the non-enconded version of db-credentials.yaml, in .env format
+echo -n "https://frontend-service:3000" | base64
+```
+
+This is the non-enconded version of the secrets, in .env format:
+
+```
 POSTGRES_DB="test"
 POSTGRES_HOST="localhost"
 POSTGRES_USER="admin"
 POSTGRES_PASSWORD="admin"
 POSTGRES_PORT="5432"
 POSTGRES_MAX="10"
+
 DATABASE_URL="postgres://admin:admin@database-service:5432/test"
+BACKEND_URL="https://backend-service:3000"
+FRONTEND_URL="https://frontend-service:3000"
 ```
 
 > Notice that the DATABASE_URL is a bit different from the one that we would use without k8s involved. This is because the database is a service of type ClusterIP, meaning that it is only accesible iniside the cluster. This is so to prevent vulnerabilities and external attacks. To reference services inside our k8s network, we can use the service name (hence why it is no longer localhost:5432 but database-service:5432. This will be explained in detail in the next section
 
-
 Here is how you can apply the secret:
+
 ```
 kubectl apply -f kubernetes/secrets/db-credentials.yaml
 ```
@@ -464,19 +477,17 @@ kubectl apply -f kubernetes/secrets/db-credentials.yaml
 This command will create a secret named `db-credentials` in the cluster. The secret can then be used by other parts of your system, while keeping the sensitive data safe. For example, you might have noticed on teh database and backend deployment files this lines, that refernece the use of these secrets when spinning up the pods:
 
 ```yaml
-        envFrom:
-        - secretRef:
-            name: db-credentials
+envFrom:
+  - secretRef:
+      name: db-credentials # or connections, as these are the only two secrets we have
 ```
 
 ### Internal and external connections
 
 🚧 TODO 🚧
 
-
 ## That's it!
 
 Next steps you might want to take is to move this cluster to the cloud, for a better feel of a real world scenario.
 
 Thank you for reading!
-

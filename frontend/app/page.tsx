@@ -9,6 +9,8 @@ import { getPosts } from "@/lib/backendSDK";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const posts = await getPosts();
 

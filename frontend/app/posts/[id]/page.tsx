@@ -10,6 +10,8 @@ import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 type Props = { params: { id: string | undefined } };
 
 export default async function Post({ params: { id } }: Props) {

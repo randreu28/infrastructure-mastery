@@ -91,14 +91,13 @@ infrastructure-mastery/
 
 For those unfamiliar with the [C4 model](https://c4model.com/), the C4 model consists of a set of hierarchical diagrams (System **C**ontext, **C**ontainers, **C**omponents, and **C**ode). The creation of these diagrams follows a certain methodology and is used to provide clarity to a team of engineers on what to do and how to go about the creation of a complex computer system.
 
-These are the models:
+As the project is just a demo, the diagrams are pretty simple and we won't reach too deep into the component and code diagrams.
 
-Here are the diagrams represented using Mermaid diagrams:
+Here are the diagrams using Mermaid syntax:
 
 ```mermaid
 graph LR
-A[User] -- Interacts --> B((System))
-B -- Interacts --> C[Other Systems]
+A[User] -- Interacts --> B[System]
 ```
 
 Above is the **System Context diagram**. It shows the system as a whole and how it interacts with the User and other systems.
@@ -108,35 +107,6 @@ graph LR
 A[Frontend] -- Interacts --> B[Backend]
 B -- Interacts --> C[Database]
 ```
-
-Above is the **Container diagram**. It shows the high-level technology choices, how responsibilities are distributed across them and how they interact.
-
-```mermaid
-graph TB
-A[Service1] -- Calls --> B[Service2]
-B -- Uses --> C[Repository]
-```
-
-Above is an example of a **Component diagram**. It shows how the backend is decomposed into cooperating components.
-
-```mermaid
-classDiagram
-Class01 <|-- AveryLongClass : Cool
-Class03 *-- Class04
-Class05 o-- Class06
-Class07 .. Class08
-Class09 --> C2 : Where am i?
-Class09 --* C3
-Class09 --|> Class07
-Class07 : equals()
-Class07 : Object[] elementData
-Class01 : size()
-Class01 : int chimp
-Class01 : int gorilla
-Class08 <|-- Class09
-```
-
-Above is an example of a **Code diagram**. It shows the important parts of the code structure.
 
 ### Minikube setup
 
@@ -312,7 +282,7 @@ This is a network issue. They are not set up to be working in the same network, 
 
 ### The frontend
 
-The frontend is very simple. It uses [React](https://react.dev/) and [Vite](https://vitejs.dev/). It's written in Typescript aswell.
+The frontend is very simple. It uses [React](https://react.dev/) and [Next.js](https://nextjs.org/). It's written in Typescript aswell.
 
 ![frontend](/images/frontend.png)
 
@@ -325,9 +295,9 @@ pnpm install # or npm or yarn, it doesn't really matter. I prefer pnpm
 pnpm run dev
 ```
 
-Great! Now you can visit http://localhost:5173/ to see the application.
+Great! Now you can visit http://localhost:3000/ to see the application.
 
-> This application does not use enviroment variables, due to some incompatibilities with how vite handles them. For more information, check the comment on [this file](/frontend/src/lib/useResource.ts)
+> This application uses one enviroment variable, which is the final URL of the backend. It also renders all the HTML in the server, as if it didn't, the name resoultion of the cluster wouldn't work in the browser.
 
 Now, if you have the docker container of the database running, and the backend running also as shown, you will be able to see the front with all the posts and comments! Now, let's dockerize it.
 
@@ -340,7 +310,7 @@ docker build -t infra-mastery-frontend .
 And mounting a container with this command:
 
 ```bash
-docker run -p 4173:4173 infra-mastery-frontend
+docker run -p 4173:4173 --env-file .env.local infra-mastery-frontend
 ```
 
 ## Kubernetes

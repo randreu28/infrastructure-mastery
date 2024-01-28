@@ -1,9 +1,5 @@
 # Infrastructure Mastery: A Kubernetes Learning Showcase
 
-## 🚧 PROJECT UNDER CONSTRUCTION 🚧
-
-> Disclaimer! This project is still in progress and has not yet been finished.
-
 ## Introduction
 
 Welcome to my ✨Infrastructure Mastery project✨. This project is designed to provide a **comprehensive learning experience** for Kubernetes and Docker.
@@ -97,7 +93,50 @@ For those unfamiliar with the [C4 model](https://c4model.com/), the C4 model con
 
 These are the models:
 
-🚧 TODO 🚧
+Here are the diagrams represented using Mermaid diagrams:
+
+```mermaid
+graph LR
+A[User] -- Interacts --> B((System))
+B -- Interacts --> C[Other Systems]
+```
+
+Above is the **System Context diagram**. It shows the system as a whole and how it interacts with the User and other systems.
+
+```mermaid
+graph LR
+A[Frontend] -- Interacts --> B[Backend]
+B -- Interacts --> C[Database]
+```
+
+Above is the **Container diagram**. It shows the high-level technology choices, how responsibilities are distributed across them and how they interact.
+
+```mermaid
+graph TB
+A[Service1] -- Calls --> B[Service2]
+B -- Uses --> C[Repository]
+```
+
+Above is an example of a **Component diagram**. It shows how the backend is decomposed into cooperating components.
+
+```mermaid
+classDiagram
+Class01 <|-- AveryLongClass : Cool
+Class03 *-- Class04
+Class05 o-- Class06
+Class07 .. Class08
+Class09 --> C2 : Where am i?
+Class09 --* C3
+Class09 --|> Class07
+Class07 : equals()
+Class07 : Object[] elementData
+Class01 : size()
+Class01 : int chimp
+Class01 : int gorilla
+Class08 <|-- Class09
+```
+
+Above is an example of a **Code diagram**. It shows the important parts of the code structure.
 
 ### Minikube setup
 
@@ -484,9 +523,13 @@ envFrom:
 
 ### Internal and external connections
 
-🚧 TODO 🚧
+Connection between pods are based on the name of the pods. If you were to try to connect to localhost:3000 (where it usually would be running your backend, for example), on the minikube enviroment it will be equivalent to backend-service:3000 (Or however you might want to call it)
+
+BEcause of that, I created a connections.yaml with secrets that are intended to be enviromet variables that resolve to the actual URL's inside the cluster. This ensures that all pods can connect to each other seamlessly.
 
 ## That's it!
+
+![All ok](/images/OK.png)
 
 Next steps you might want to take is to move this cluster to the cloud, for a better feel of a real world scenario.
 

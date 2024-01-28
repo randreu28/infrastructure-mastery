@@ -13,12 +13,12 @@ export type TComment = {
   postId: number;
 };
 
-if (!process.env.NEXT_API_URL) {
+if (!process.env.BACKEND_URL) {
   throw new Error("Enviroment variables missing");
 }
 
 export async function getPosts() {
-  const res = await fetch(`${process.env.NEXT_API_URL}/posts`, {
+  const res = await fetch(`${process.env.BACKEND_URL}/posts`, {
     cache: "no-cache",
   });
   const posts = (await res.json()) as TPost[];
@@ -27,7 +27,7 @@ export async function getPosts() {
 }
 
 export async function getPost(postId: number) {
-  const res = await fetch(`${process.env.NEXT_API_URL}/posts/${postId}`, {
+  const res = await fetch(`${process.env.BACKEND_URL}/posts/${postId}`, {
     cache: "no-cache",
   });
 
@@ -40,7 +40,7 @@ export async function getPost(postId: number) {
 }
 
 export async function getComments(postId: number) {
-  const res = await fetch(`${process.env.NEXT_API_URL}/comments`, {
+  const res = await fetch(`${process.env.BACKEND_URL}/comments`, {
     cache: "no-cache",
   });
   const comments = (await res.json()) as TComment[];

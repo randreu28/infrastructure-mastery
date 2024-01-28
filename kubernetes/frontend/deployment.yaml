@@ -22,7 +22,7 @@ spec:
             - secretRef:
                 name: connections
           ports:
-            - containerPort: 4173
+            - containerPort: 3000
           resources:
             requests:
               memory: "128Mi"
